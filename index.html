@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ihr Bestellprozess — und was das System übernimmt</title>
+<style>
+  :root{
+    --navy:#0a1628; --navy2:#122238; --navy3:#1b2f49;
+    --orange:#FF6600; --orange-soft:#ff8636;
+    --ink:#eaf1fa; --mut:#8ea3bd; --line:#2a3f5c;
+    --red:#ff7266; --green:#41d38c;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--navy);color:var(--ink);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+  /* HERO */
+  .hero{min-height:90vh;display:flex;flex-direction:column;justify-content:center;padding:8vh 8vw;background:radial-gradient(1200px 600px at 20% -10%,rgba(255,102,0,.14),transparent 60%),linear-gradient(160deg,var(--navy),var(--navy2))}
+  .wordmark{font-weight:800;font-size:15px;letter-spacing:.02em}.wordmark span{color:var(--orange-soft)}
+  .hero h1{font-size:clamp(30px,5.4vw,58px);line-height:1.08;font-weight:800;margin:26px 0 18px;max-width:16ch}
+  .hero h1 em{color:var(--orange-soft);font-style:normal}
+  .hero p{font-size:clamp(15px,2vw,19px);color:#c3d2e6;max-width:56ch;line-height:1.6}
+  .scrollhint{margin-top:44px;display:flex;align-items:center;gap:12px;color:var(--mut);font-size:13px;letter-spacing:.14em;text-transform:uppercase}
+  .scrollhint .bar{width:60px;height:2px;background:linear-gradient(90deg,var(--orange),transparent);position:relative;overflow:hidden}
+  .scrollhint .bar::after{content:"";position:absolute;inset:0;width:24px;background:var(--orange-soft);animation:slide 1.8s ease-in-out infinite}
+  @keyframes slide{0%{transform:translateX(-24px)}100%{transform:translateX(60px)}}
+
+  /* SECTION + STAGE */
+  .tl-section{position:relative}
+  .stage{position:sticky;top:0;height:100vh;overflow:hidden}
+  .topbar{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:22px 6vw 0;z-index:7}
+  .topbar .lab{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--orange-soft);font-weight:700}
+  .topbar .count{font-size:13px;color:var(--mut);font-variant-numeric:tabular-nums}
+  .topbar .count b{color:#fff;font-size:20px}
+  /* Prozess-Umschalter */
+  .procswitch{position:absolute;top:16px;left:50%;transform:translateX(-50%);z-index:8;display:flex;gap:6px;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:999px;padding:5px}
+  .procswitch button{background:none;border:0;color:var(--mut);font-size:13px;font-weight:700;padding:9px 18px;border-radius:999px;cursor:pointer;transition:.3s;font-family:inherit;white-space:nowrap}
+  .procswitch button.on{background:var(--orange);color:#fff;box-shadow:0 6px 18px rgba(255,102,0,.3)}
+  .progress{position:absolute;top:64px;left:6vw;right:6vw;height:3px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;z-index:6}
+  .progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--orange),var(--orange-soft));border-radius:3px;transition:width .18s ease}
+
+  /* Meterstab-Achse */
+  .ruler{position:absolute;left:6vw;right:6vw;top:50%;transform:translateY(-50%);height:26px;z-index:1;pointer-events:none}
+  .ruler .line{position:absolute;top:50%;left:0;right:0;height:2px;transform:translateY(-50%);background:rgba(255,255,255,.22)}
+  .ruler .fine{position:absolute;top:50%;left:0;right:0;height:9px;transform:translateY(-50%);background-image:repeating-linear-gradient(90deg,rgba(255,255,255,.20) 0 1px,transparent 1px 12px)}
+  .ruler .major{position:absolute;top:50%;left:0;right:0;height:24px;transform:translateY(-50%);background-image:repeating-linear-gradient(90deg,var(--deptcolor,var(--orange)) 0 2px,transparent 2px 72px);transition:background-image .5s ease}
+  .ruler .arrow{position:absolute;right:-6px;top:50%;transform:translateY(-50%);border-left:16px solid var(--deptcolor,var(--orange));border-top:10px solid transparent;border-bottom:10px solid transparent;transition:border-color .5s ease}
+  .railcap{position:absolute;top:50%;left:6vw;transform:translateY(-50%);z-index:1;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);opacity:.5;margin-top:-66px}
+
+  /* Farb-Layer oben */
+  .deptlayer{position:absolute;top:0;left:0;right:0;height:56%;z-index:0;pointer-events:none;background:linear-gradient(108deg,var(--deptcolor,transparent) 0%,transparent 58%);opacity:.34;transition:opacity .5s ease;border-left:3px solid var(--deptcolor,transparent)}
+  /* Abteilung hochkant links */
+  .deptlabel{position:absolute;left:2.6vw;top:26%;transform:translateY(-50%) rotate(180deg);writing-mode:vertical-rl;z-index:2;color:var(--deptcolor,#fff);font-size:18px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap;transition:color .5s ease}
+
+  /* festes Rollen-Panel links */
+  .rolebox{position:absolute;left:7.5vw;top:30%;transform:translateY(-50%);width:min(30vw,420px);z-index:4;pointer-events:none}
+  .rolebox.show .rhead,.rolebox.show .role{animation:rolein .5s cubic-bezier(.22,.7,.2,1) both}
+  .rolebox.show .role:nth-child(2){animation-delay:.06s} .rolebox.show .role:nth-child(3){animation-delay:.13s}
+  @keyframes rolein{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:none}}
+  .rolebox .rhead{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--deptcolor,var(--orange-soft));font-weight:800;margin-bottom:22px;transition:color .5s}
+  .rolebox .role{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+  .ravatar{width:64px;height:64px;border-radius:50%;background:#eef3fa;border:2.5px solid var(--orange);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .ravatar svg{width:40px;height:40px;fill:var(--orange)}
+  .rlabel{font-size:18px;color:#fff;font-weight:700;line-height:1.16}
+
+  /* Zeit-Panel rechts */
+  .timebox{position:absolute;right:5vw;top:11%;z-index:4;text-align:right;pointer-events:none}
+  .timebox.show{animation:rolein .5s cubic-bezier(.22,.7,.2,1) both}
+  .timebox .tlabel{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);font-weight:800;margin-bottom:8px}
+  .timebox .tval{font-size:66px;font-weight:800;color:var(--deptcolor,var(--orange-soft));line-height:.9;transition:color .5s}
+  .timebox .tval small{font-size:22px;font-weight:700;margin-left:4px}
+  .timebox .tcum{margin-top:14px;font-size:14px;color:#c3d2e6;line-height:1.4}
+  .timebox .tcum b{color:#fff;font-size:20px} .timebox .tcum span{color:var(--mut)}
+  /* großes Outline-Icon zwischen Personen und Station */
+  .bigicon{position:absolute;left:27%;top:31%;transform:translate(-50%,-50%);width:110px;height:110px;z-index:1;pointer-events:none;opacity:0;transition:opacity .5s ease}
+  .bigicon.show{opacity:.4}
+  .bigicon svg{width:100%;height:100%;stroke:var(--deptcolor,#fff);fill:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round}
+  /* Pöppel-Zeit unten rechts (grün) */
+  .poeppeltime{position:absolute;right:5vw;bottom:9%;z-index:4;text-align:right;pointer-events:none}
+  .poeppeltime.show{animation:rolein .5s cubic-bezier(.22,.7,.2,1) both}
+  .poeppeltime .ptlabel{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--green);font-weight:800;margin-bottom:6px}
+  .poeppeltime .ptval{font-size:54px;font-weight:800;color:var(--green);line-height:.9}
+  .poeppeltime .ptval small{font-size:18px;font-weight:700;margin-left:4px}
+  .poeppeltime .ptcum{margin-top:8px;font-size:14px;color:#a9e6c6}
+  .poeppeltime .ptcum b{color:#c9f4dd}
+
+  /* STEPS */
+  .steps{position:absolute;inset:0;z-index:3}
+  .col{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:clamp(360px,32vw,440px);transition:left .7s cubic-bezier(.22,.7,.2,1),width .7s cubic-bezier(.22,.7,.2,1),opacity .5s ease;display:flex;flex-direction:column;align-items:center;gap:0}
+  .col .process{width:100%;margin-bottom:34px;transform:translateY(18px);padding:0 12px;text-align:center;transition:opacity .5s ease,transform .6s cubic-bezier(.22,.7,.2,1)}
+  .col .save{position:relative;overflow:hidden;width:100%;max-width:340px;margin:52px auto 0;border-radius:16px;padding:22px 24px;text-align:center;background:#e8eef7;border:1.5px solid #a9c4e2;box-shadow:0 12px 30px rgba(10,22,40,.18);transform:translateY(-18px);transition:opacity .5s ease,transform .6s cubic-bezier(.22,.7,.2,1)}
+  .gonebadge{position:absolute;top:0;left:0;width:96px;height:96px;overflow:hidden;z-index:2;pointer-events:none}
+  .gonebadge span{position:absolute;top:19px;left:-36px;width:140px;transform:rotate(-45deg);background:linear-gradient(135deg,#f6c85a,#dca01e);color:#3a2600;font-size:12.5px;font-weight:800;text-align:center;padding:5px 0;box-shadow:0 3px 8px rgba(0,0,0,.25)}
+  .col .save .tag{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:7px;color:#1f6fbf}
+  .col .process .pnum{display:block;font-size:66px;font-weight:800;color:var(--orange-soft);line-height:.9;margin-bottom:10px;letter-spacing:.01em}
+  .col h3{font-weight:800;margin-bottom:7px;line-height:1.2}
+  .col .process h3{font-size:30px;color:#fff;margin-bottom:12px} .col .save h3{font-size:18px;color:var(--navy)}
+  .col .process p{font-size:17px;line-height:1.55;color:#d8c7b6;max-width:none;margin:0 auto}
+  .col .save p{font-size:15px;line-height:1.5;color:#33475b}
+
+  .node{position:relative;z-index:4;flex:0 0 auto;cursor:pointer}
+  .dot{width:74px;height:74px;border-radius:50%;background:var(--navy2);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;transition:.6s cubic-bezier(.22,.7,.2,1);position:relative}
+  .dot svg{width:34px;height:34px;stroke:var(--mut);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;transition:.5s}
+  .num{position:absolute;top:-8px;right:-8px;width:26px;height:26px;border-radius:50%;background:var(--navy3);border:1px solid var(--line);color:var(--mut);font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;transition:.5s}
+  .steplabel{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:10px;font-size:12px;font-weight:700;color:var(--mut);white-space:nowrap;transition:.4s;opacity:0}
+
+  .col.active{left:50%;border-radius:26px;padding:18px 10px 22px}
+  .col.active::before{content:"";position:absolute;inset:0;border-radius:26px;padding:4px;background:linear-gradient(158deg,var(--deptcolor,var(--orange)),#7c6cf0);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+  .col.active .process,.col.active .save{opacity:1;transform:translateY(0)}
+  .col.active .dot{width:88px;height:88px;background:var(--orange);border-color:var(--orange-soft);box-shadow:0 0 0 10px rgba(255,102,0,.12),0 16px 40px rgba(255,102,0,.35)}
+  .col.active .dot svg{stroke:#fff;width:40px;height:40px}
+  .col.active .num{background:#fff;border-color:#fff;color:var(--navy)}
+  .col.active .steplabel{opacity:1;color:#fff}
+
+  .col.done{left:calc(6vw + 34px + var(--k) * 40px);width:74px}
+  .col.done .process,.col.done .save{opacity:0;pointer-events:none;height:0;padding:0;margin:0;border:0;overflow:hidden}
+  .col.done .dot{width:52px;height:52px;background:var(--navy2);border-color:var(--orange)}
+  .col.done .dot svg{width:24px;height:24px;stroke:var(--orange-soft)}
+  .col.done .num{width:22px;height:22px;font-size:11px;background:var(--orange);border-color:var(--orange);color:#fff;top:-6px;right:-6px}
+  .col.done:hover .dot{transform:translateY(-4px)}
+
+  .col.upcoming{left:calc(94% + var(--ku) * 26px);width:74px;opacity:.16;pointer-events:none}
+  .col.upcoming .process,.col.upcoming .save{opacity:0;height:0;padding:0;margin:0;border:0;overflow:hidden}
+  .col.upcoming .dot{width:48px;height:48px}
+  .col.upcoming .num,.col.upcoming .steplabel{opacity:0}
+
+  /* POPOVER */
+  .pop{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;background:rgba(4,10,20,.62);backdrop-filter:blur(3px);padding:20px}
+  .pop.show{display:flex}
+  .pop .box{background:var(--navy2);border:1px solid var(--line);border-radius:18px;max-width:440px;width:100%;padding:26px;position:relative;animation:pop .4s cubic-bezier(.2,.8,.2,1)}
+  @keyframes pop{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+  .pop .phead{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+  .pop .pdot{width:56px;height:56px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;flex:0 0 auto;position:relative}
+  .pop .pdot svg{width:28px;height:28px;stroke:#fff;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .pop .pdot .num{background:#fff;color:var(--navy);border-color:#fff}
+  .pop .pstep{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--orange-soft);font-weight:700}
+  .pop .pstep b{display:block;color:#fff;font-size:19px;letter-spacing:0;text-transform:none;margin-top:2px}
+  .pop .pblock{border-radius:12px;padding:14px 16px;margin-top:12px}
+  .pop .pblock.proc{background:#fff2e6;border:1.5px solid var(--orange)}
+  .pop .pblock.sav{background:#e8eef7;border:1.5px solid #a9c4e2}
+  .pop .pblock .tag{font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:5px}
+  .pop .pblock.proc .tag{color:#ea580c} .pop .pblock.sav .tag{color:#1f6fbf}
+  .pop .pblock.proc p{font-size:14px;line-height:1.5;color:#7a4a24}
+  .pop .pblock.sav p{font-size:14px;line-height:1.5;color:#33475b}
+  .pop .close{position:absolute;top:14px;right:16px;color:var(--mut);font-size:22px;cursor:pointer;line-height:1;background:none;border:0}
+
+  /* OUTRO */
+  .outro{padding:14vh 8vw;background:linear-gradient(160deg,var(--navy2),var(--navy));text-align:center}
+  .outro h2{font-size:clamp(24px,4vw,40px);font-weight:800;margin-bottom:16px}
+  .outro h2 em{color:var(--orange-soft);font-style:normal}
+  .outro p{color:#c3d2e6;max-width:56ch;margin:0 auto 26px;font-size:16px;line-height:1.6}
+  .cta-btn{display:inline-block;background:var(--orange);color:#fff;font-weight:700;font-size:15px;padding:15px 30px;border-radius:12px;text-decoration:none;box-shadow:0 10px 30px rgba(255,102,0,.35)}
+  .who{margin-top:24px;color:var(--mut);font-size:13px}
+  footer{background:var(--navy);color:#5f7796;font-size:11px;padding:18px;text-align:center}
+
+  /* FALLBACK */
+  body.fallback .stage{position:static;height:auto;overflow:visible;padding-bottom:40px}
+  body.fallback .ruler,body.fallback .railcap,body.fallback .deptlayer,body.fallback .deptlabel,body.fallback .rolebox,body.fallback .timebox,body.fallback .bigicon,body.fallback .poeppeltime{display:none}
+  body.fallback .progress{position:sticky;top:0}
+  body.fallback .steps{position:static;padding:110px 6vw 0;display:flex;flex-direction:column;gap:40px}
+  body.fallback .col{position:static;transform:none;width:100%;left:auto!important;opacity:1!important;gap:14px}
+  body.fallback .col .process,body.fallback .col .save{opacity:1!important;transform:none;height:auto!important;margin:0!important}
+  body.fallback .col .process h3{color:#fff}
+  body.fallback .col .dot{width:64px;height:64px}
+  body.fallback .col .steplabel{position:static;transform:none;opacity:1!important;margin-top:8px;color:#fff}
+  body.fallback .col .node{cursor:default}
+</style>
+</head>
+<body>
+
+  <section class="hero">
+    <div class="wordmark">PÖPPEL <span>Workwear</span></div>
+    <h1>Ihr Bestellprozess — und was <em>Pöppel</em> davon übernimmt.</h1>
+    <p>So läuft die Beschaffung von Arbeitskleidung heute — Station für Station. Oben können Sie den Auslöser umschalten. Links sehen Sie, wer eingebunden ist, rechts den geschätzten Aufwand. Scrollen Sie durch.</p>
+    <div class="scrollhint"><span class="bar"></span> weiterscrollen</div>
+  </section>
+
+  <section class="tl-section" id="tl">
+    <div class="stage">
+      <div class="deptlayer" id="deptlayer"></div>
+      <div class="deptlabel" id="deptlabel"></div>
+      <div class="bigicon" id="bigicon"></div>
+      <div class="rolebox" id="rolebox"></div>
+      <div class="timebox" id="timebox"></div>
+      <div class="poeppeltime" id="poeppeltime"></div>
+      <div class="procswitch" id="procswitch"></div>
+      <div class="topbar"><div class="lab">Der Bestellprozess</div><div class="count"><b id="stepNum">1</b> / <span id="stepTot">10</span></div></div>
+      <div class="progress"><i id="progFill"></i></div>
+      <div class="ruler"><div class="line"></div><div class="fine"></div><div class="major"></div><div class="arrow"></div></div>
+      <div class="railcap">erledigt</div>
+      <div class="steps" id="steps"></div>
+    </div>
+  </section>
+
+  <section class="outro">
+    <h2>Viele Stationen. Bei Ihnen bleibt <em>eine</em>.</h2>
+    <p>Aus einem Prozess, der heute Ihre Leute bindet, wird ein Klick im Katalog. Den Rest übernehmen wir — Sie behalten Kontrolle über Standard, Budget und Kostenstellen.</p>
+    <a class="cta-btn" href="mailto:a.bodenmiller@poeppel-wkz.de?subject=Workwear%20Management%20%E2%80%93%2020%20Minuten">20-Minuten-Termin anfragen</a>
+    <div class="who">Andreas Bodenmiller · Pöppel Workwear · seit 1925 aus Memmingen</div>
+  </section>
+
+  <footer>R. Pöppel GmbH &amp; Co. KG · Memmingen · Interner Konzept-Prototyp · Bestellprozess-Timeline · Juli 2026</footer>
+
+  <div class="pop" id="pop">
+    <div class="box">
+      <button class="close" id="popClose" aria-label="Schließen">&times;</button>
+      <div class="phead"><div class="pdot" id="popDot"></div><div class="pstep">Station <span id="popI"></span><b id="popStep"></b></div></div>
+      <div class="pblock proc"><span class="tag">Der Prozess</span><p id="popProc"></p></div>
+      <div class="pblock sav"><span class="tag">Pöppel Workwear spart</span><p id="popSave"></p></div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  var body=document.body;
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var coarse=window.matchMedia&&window.matchMedia('(pointer: coarse)').matches;
+  var section=document.getElementById('tl');
+  var stage=section.querySelector('.stage');
+  var steps=document.getElementById('steps');
+  var progFill=document.getElementById('progFill');
+  var stepNum=document.getElementById('stepNum');
+  var stepTot=document.getElementById('stepTot');
+  var pop=document.getElementById('pop');
+
+  var PLAIN='<circle cx="12" cy="8" r="3.6"/><path d="M5 20c0-3.9 3.1-6.6 7-6.6s7 2.7 7 6.6z"/>';
+  var STATIONCOLORS=['#ff7a59','#ff6b9d','#c56cf0','#7c6cf0','#5b8def','#3ec5e0','#2dd4bf','#4ade80','#a3e635','#fbbf24'];
+  function colorAt(i,total){ if(total<=1) return STATIONCOLORS[0]; return STATIONCOLORS[Math.round(i/(total-1)*(STATIONCOLORS.length-1))]; }
+  // Schritte, deren manueller Aufwand mit Pöppel komplett entfällt (Eck-Badge)
+  var GONE={'Budget live im System':1,'Budgets live im System':1,'Freigabe nach Ihren Regeln':1,'Fällt komplett weg':1,'Fertige Päckchen mit Namen':1};
+
+  var ICONS={
+    clipboard:'<rect x="6" y="4" width="12" height="16" rx="2"/><path d="M9 4h6v3H9z"/><path d="M9 11h6M9 15h4"/>',
+    cart:'<path d="M4 5h2l2 11h9l2-8H7"/><circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/>',
+    wallet:'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10.5h18"/><circle cx="16.5" cy="14.5" r="1.3"/>',
+    shield:'<path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/>',
+    truck:'<path d="M3 7h11v8H3z"/><path d="M14 10h4l3 3v2h-7z"/><circle cx="7" cy="17" r="1.6"/><circle cx="17" cy="17" r="1.6"/>',
+    star:'<path d="M12 3l2.2 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.8-.5z"/>',
+    box:'<path d="M3 8l9-4 9 4-9 4z"/><path d="M3 8v8l9 4 9-4V8"/><path d="M12 12v8"/>',
+    users:'<circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.4"/><path d="M3 20c0-3 2.2-5 5-5s5 2 5 5"/><path d="M14.5 20c0-2.4 1.4-4 3.5-4 1.6 0 3 1 3 3.2"/>',
+    chart:'<path d="M5 20V10M12 20V5M19 20v-7"/><path d="M3 20h18"/>',
+    helmet:'<path d="M3 17a9 9 0 0 1 18 0"/><path d="M2 17h20"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><path d="M12 8V5"/>',
+    shieldsafe:'<path d="M12 3l7 3v5c0 4.6-3 7.6-7 9-4-1.4-7-4.4-7-9V6z"/><path d="M12 9.2v4.6M9.7 11.5h4.6"/>',
+    mega:'<path d="M4 10v4l9 4V6z"/><path d="M13 8.5a4 4 0 0 1 0 7"/><path d="M6 15v3"/>'
+  };
+
+  // gemeinsame End-Stationen (ab Beschaffung fast gleich) als Bausteine
+  function S(label,icon,time,dept,roles,ptitle,ptext,stitle,stext){return{label:label,icon:icon,time:time,dept:dept,roles:roles,ptitle:ptitle,ptext:ptext,stitle:stitle,stext:stext};}
+
+  var PROCESSES={
+    emp:{ name:'Mitarbeiter meldet', stations:[
+      S('Bedarf','clipboard',10,'Mitarbeiter / Abteilung',['Mitarbeiter','Abteilungsleiter'],'Bedarf melden','Dem Mitarbeiter fehlt eine Jacke, eine Hose. Er sagt es dem Vorarbeiter, der gibt es an den Abteilungsleiter weiter, der an den Verantwortlichen für Arbeitskleidung. Mehrere Hände, bevor überhaupt jemand bestellt.','Direkt im System','Der Mitarbeiter meldet den Bedarf selbst in der App — im Rahmen seines hinterlegten Budgets und seiner PSA. Kein Weiterreichen, keine Kette.'),
+      S('Bestellung','cart',15,'Einkauf',['Einkauf'],'Modell finden &amp; bestellen','Im Katalog das richtige Modell suchen: Gibt es das überhaupt noch? Stimmt der Preis, die Größe? Jedes Jahr neue Sortimente, andere Artikelnummern — und dann bei mehreren Lieferanten vergleichen.','Bestellung nach Ihrem Modell','Ihr gepflegtes Sortiment im aktuellen CI-Katalog. Bestellt wird, wie es zu Ihnen passt: Self-Service-App, gesammelt über die Abteilungsleitung oder Schnittstelle in Ihr System.'),
+      S('Budget','wallet',5,'Leitung / Controlling',['Vorgesetzter','Controlling'],'Budgetprüfung','Hat der Mitarbeiter überhaupt noch Budget frei? Das muss erst jemand nachsehen — Rücksprache mit Vorgesetztem oder Controlling.','Budget live im System','Das Budget jedes Mitarbeiters ist jederzeit sichtbar. Ist es aufgebraucht, greift die Regel automatisch — niemand muss nachsehen.'),
+      S('Freigabe','shield',10,'Leitung',['Vorgesetzter'],'Freigabe','Die Bestellung geht zur Freigabe — per Mail, per Zuruf. Warten auf den Vorgesetzten, bis es weitergeht.','Freigabe nach Ihren Regeln','Sie wählen: automatisch nach Budget, zentral über die Abteilungsleitung oder über einen Verantwortlichen. Ohne Mail-Schleife.'),
+      S('Beschaffung','truck',15,'Einkauf',['Einkauf'],'Beschaffung','Der Einkauf bündelt die Bedarfe, bestellt bei mehreren Lieferanten, koordiniert Termine, Mengen und Mindestbestellwerte.','Ein Ansprechpartner','Ein Ansprechpartner für alles, herstellerunabhängig aus 500+ Marken — eine Bestellung, ein Rechnungsstrom.'),
+      S('Veredelung','star',10,'Veredelung',['externer Veredler'],'Veredelung','Für Logo und Namen geht die Ware zum externen Veredler und wieder zurück. Falsch platzierte Logos, lange Wege, zusätzliche Wartezeit.','In-house, einmal festgelegt','Logos einmal aufbereitet und festgelegt, veredelt wird im eigenen Haus — kein Fehlerrisiko, kürzere Lieferzeit.'),
+      S('Wareneingang','box',10,'Lager',['Lager /<br>Wareneingang'],'Wareneingang','Ein großes Sammelpaket kommt an. Jemand nimmt es an, packt aus, prüft gegen die Bestellung und lagert zwischen.','Vorkommissioniert','Die Ware kommt fertig sortiert — ein beschriftetes Päckchen je Mitarbeiter, direkt an den richtigen Standort.'),
+      S('Verteilung','users',15,'Lager',['Lager','Polier'],'Verteilung','Im Betrieb wird sortiert: Wer bekommt was? Ausgeben, quittieren lassen, fehlende Teile nachverfolgen.','Fällt komplett weg','Entfällt vollständig — jedes Päckchen trägt schon den Namen und geht direkt auf die Baustelle.'),
+      S('Abrechnung','chart',10,'Buchhaltung / Controlling',['Buchhaltung','Controlling'],'Abrechnung &amp; Kostenstellen','Am Ende die Kosten zuordnen — normalerweise pro Abteilung. Sobald Personaldienstleister eingebunden sind, wird es kompliziert.','Automatisch je Kostenstelle','Jede Bestellung ist der richtigen Kostenstelle zugeordnet — pro Abteilung, bei Bedarf pro Baustelle oder Personaldienstleister. Export fürs Controlling.'),
+      S('PSA-Nachweis','shieldsafe',10,'Arbeitssicherheit',['Sicherheits-<br>beauftragter'],'PSA-Nachweis','Für jede Prüfung und jedes Audit muss belegt sein, wer wann welche Schutzausrüstung erhalten hat. Belege zusammensuchen, Listen führen.','Lückenlos dokumentiert','Jede PSA-Ausgabe ist im System hinterlegt — der Nachweis für Audit und BG-Prüfung steht auf Knopfdruck bereit.')
+    ]},
+    central:{ name:'Zentral über Einkauf', stations:[
+      S('Startschuss','mega',20,'Einkauf',['Einkauf','Workwear-Verantwortlicher'],'Bestellrunde ausrufen','Der Einkauf startet die Bestellrunde und bittet alle Abteilungen, ihre Bedarfe zu erfassen. Rundmail, Fristen setzen, Nachfassen bei denen, die nicht liefern.','Zentral angestoßen','Ein Klick startet die Runde. Jede Abteilung sieht ihre Aufgabe und Frist im System — kein Rundmail-Chaos, kein Nachtelefonieren.'),
+      S('Sammeln','users',30,'Abteilungsleiter',['Abteilungsleiter','Mitarbeiter'],'Bedarfe einsammeln','Die Abteilungsleiter fragen ihre Leute ab, notieren Größen und Mengen, tippen Listen ab und geben sie zurück. Hin und her, bis alles vollständig ist.','Mitarbeiter melden selbst','Jeder trägt seinen Bedarf direkt ein, die Abteilung sieht den Stand in Echtzeit — kein Abtippen, keine Sammellisten.'),
+      S('Budget','wallet',10,'Controlling',['Controlling'],'Budgets prüfen','Für jede Abteilung prüfen: Ist das Budget gedeckt? Rückfragen, Kürzungen, Freigaben von oben.','Budgets live im System','Jedes Abteilungsbudget ist sichtbar, Überschreitungen fallen sofort auf — die Regel greift automatisch.'),
+      S('Freigabe','shield',10,'Leitung',['Vorgesetzter'],'Freigabe','Die gesammelte Bestellung geht zur zentralen Freigabe. Warten, bis alle Stellen zugestimmt haben.','Freigabe nach Ihren Regeln','Automatisch nach Budget oder zentral über einen Verantwortlichen — Sie bestimmen den Weg, das System bildet ihn ab.'),
+      S('Beschaffung','truck',15,'Einkauf',['Einkauf'],'Beschaffung','Der Einkauf bündelt alles, bestellt bei mehreren Lieferanten, koordiniert Termine und Mengen.','Ein Ansprechpartner','Ein Ansprechpartner, herstellerunabhängig aus 500+ Marken — eine Bestellung, ein Rechnungsstrom.'),
+      S('Veredelung','star',10,'Veredelung',['externer Veredler'],'Veredelung','Ware zum externen Veredler und zurück. Falsch platzierte Logos, lange Wege, Wartezeit.','In-house, einmal festgelegt','Logos einmal festgelegt, im eigenen Haus veredelt — kein Fehlerrisiko, kürzere Lieferzeit.'),
+      S('Wareneingang','box',10,'Lager',['Lager /<br>Wareneingang'],'Wareneingang','Ein großes Sammelpaket für alle Abteilungen kommt an — annehmen, auspacken, prüfen, zwischenlagern.','Vorkommissioniert','Fertig sortiert je Mitarbeiter und Abteilung, direkt an den richtigen Standort.'),
+      S('Verteilung','users',15,'Lager',['Lager','Polier'],'Verteilung','Zentral sortieren und an die Abteilungen weiterverteilen — wer bekommt was, quittieren, nachverfolgen.','Fällt komplett weg','Jedes Päckchen ist beschriftet und geht direkt an die richtige Stelle.'),
+      S('Abrechnung','chart',10,'Buchhaltung / Controlling',['Buchhaltung','Controlling'],'Abrechnung &amp; Kostenstellen','Die Sammelbestellung wieder auf die Abteilungen herunterbrechen und den Kostenstellen zuordnen.','Automatisch je Kostenstelle','Schon bei der Bestellung sauber je Abteilung/Kostenstelle gebucht — Export fürs Controlling, kein Aufteilen im Nachhinein.'),
+      S('PSA-Nachweis','shieldsafe',10,'Arbeitssicherheit',['Sicherheits-<br>beauftragter'],'PSA-Nachweis','Belegen, wer wann welche Schutzausrüstung erhalten hat — für Audit und BG-Prüfung Belege zusammensuchen.','Lückenlos dokumentiert','Jede Ausgabe ist im System hinterlegt — Nachweis auf Knopfdruck.')
+    ]},
+    temp:{ name:'Mit Personaldienstleistern', stations:[
+      S('Projektstart','mega',15,'Bauleitung',['Bauleiter','Personaldienstleister'],'Viele auf einmal','Ein Großauftrag startet. Kurzfristig kommen 30 Leihkräfte dazu, die alle sofort ausgestattet sein müssen — in der CI des Auftraggebers, mit korrekter PSA.','Vorkonfiguriert je Projekt','Für das Projekt ist ein Ausstattungspaket hinterlegt. Neue Kräfte werden mit einem Klick zugeordnet und sind sofort startklar.'),
+      S('Größen','clipboard',20,'Personaldienstleister',['Personaldienstleister'],'Fremde Größen erfassen','Von Leihkräften sind keine Größen bekannt. Jemand muss sie erfassen — oft unter Zeitdruck am ersten Tag, mit Rückfragen und Fehlgrößen.','Ankleidetag vor Ort','Pöppel erfasst die Größen direkt vor Ort — schnell, auch für ganze Teams, Hersteller-Fachverkäufer dabei.'),
+      S('Abrechnung','chart',12,'Controlling',['Controlling'],'Wer zahlt was?','Zwischen Ihnen und Ihren Personaldienstleistern gibt es keine einheitliche Abrechnung: mal zahlen Sie, mal der Dienstleister, mal wird geteilt. Verschiedene Verträge, jeder Fall anders — das von Hand sauber zu halten, ist kaum machbar.','Jedes Modell abbildbar','Sie zahlen und verrechnen weiter, getrennt je Dienstleister, oder der Dienstleister zahlt selbst — die Bestellung läuft trotzdem über Pöppel. Eigene Kostenstelle je Dienstleister. Ihr Vertrag, unser System bildet ihn ab.'),
+      S('Ausstattung','box',10,'Lager',['Lager'],'Schnell viele Pakete','Für jede Kraft das Passende zusammenstellen, veredeln, verpacken — unter Zeitdruck, damit niemand ohne Ausrüstung dasteht.','Vorkommissioniert je Person','Ein fertiges, beschriftetes Päckchen pro Kraft, in Ihrer CI — direkt auf die Baustelle geliefert.'),
+      S('Ausgabe','users',15,'Bauleitung',['Polier'],'Verteilen auf der Baustelle','Auf der Baustelle sortieren und ausgeben — wer ist neu, wer hat schon was, wer fehlt noch?','Fertige Päckchen mit Namen','Jede Kraft bekommt ihr Päckchen mit Namen, am ersten Tag, ohne internen Aufwand.'),
+      S('Haftung','helmet',10,'Arbeitssicherheit',['Sicherheits-<br>beauftragter'],'Wer haftet für die PSA?','Steht eine Leihkraft ohne korrekte PSA auf der Baustelle, haftet der Auftraggeber — nicht der Verleiher. Arbeitsstopp, Verzug, Risiko.','Sie kontrollieren den Standard','Jede Ausgabe ist dokumentiert, jeder am ersten Tag korrekt ausgerüstet. Sie kontrollieren den Standard — nicht die Zeitarbeitsfirma.')
+    ]}
+  };
+
+  var CUR=[], cols=[], N=0, curActive=-1, sectionH=0, curKey='emp';
+
+  function openPop(col){
+    var i=col.getAttribute('data-i');
+    document.getElementById('popI').textContent=i;
+    document.getElementById('popStep').textContent=col.querySelector('.steplabel').textContent;
+    document.getElementById('popProc').innerHTML=col.querySelector('.process p').innerHTML;
+    document.getElementById('popSave').innerHTML=col.querySelector('.save p').innerHTML;
+    document.getElementById('popDot').innerHTML='<span class="num">'+i+'</span>'+col.querySelector('.dot svg').outerHTML;
+    pop.classList.add('show');
+  }
+  function closePop(){ pop.classList.remove('show'); }
+  document.getElementById('popClose').addEventListener('click',closePop);
+  pop.addEventListener('click',function(e){ if(e.target===pop) closePop(); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') closePop(); });
+
+  function buildSteps(key){
+    var proc=PROCESSES[key]; CUR=proc.stations; N=CUR.length;
+    var html='';
+    CUR.forEach(function(s,idx){
+      var C=colorAt(idx,N);
+      html+='<div class="col" data-i="'+(idx+1)+'" data-dept="'+C+'">'
+        +'<div class="process"><span class="pnum">'+('0'+(idx+1)).slice(-2)+'</span><h3>'+s.ptitle+'</h3><p>'+s.ptext+'</p></div>'
+        +'<div class="node"><div class="dot"><span class="num">'+(idx+1)+'</span><svg viewBox="0 0 24 24">'+ICONS[s.icon]+'</svg></div><span class="steplabel">'+s.label+'</span></div>'
+        +'<div class="save">'+(GONE[s.stitle]?'<div class="gonebadge"><span>entfällt</span></div>':'')+'<span class="tag">Pöppel Workwear spart</span><h3>'+s.stitle+'</h3><p>'+s.stext+'</p></div>'
+        +'</div>';
+    });
+    steps.innerHTML=html;
+    cols=Array.prototype.slice.call(steps.querySelectorAll('.col'));
+    cols.forEach(function(c){ c.querySelector('.node').addEventListener('click',function(){ openPop(c); }); if(c!==cols[0]) c.classList.add('upcoming'); else c.classList.add('active'); });
+    stepTot.textContent=N;
+    curActive=-1;
+  }
+
+  function renderRoles(idx){
+    var box=document.getElementById('rolebox'); if(!box) return;
+    var list=(CUR[idx]&&CUR[idx].roles)||[]; var C=colorAt(idx,N);
+    var html='<div class="rhead">Involvierte Personen</div>';
+    list.forEach(function(r){ html+='<div class="role"><span class="ravatar" style="border-color:'+C+'"><svg viewBox="0 0 24 24" style="fill:'+C+'">'+PLAIN+'</svg></span><span class="rlabel">'+r+'</span></div>'; });
+    box.innerHTML=html;
+    box.classList.remove('show'); void box.offsetWidth; box.classList.add('show');
+  }
+  function renderTime(idx){
+    var box=document.getElementById('timebox'); if(!box) return;
+    var t=(CUR[idx]&&CUR[idx].time)||0;
+    var cum=0; for(var i=0;i<=idx;i++){ cum+=(CUR[i].time||0); }
+    var all=0; CUR.forEach(function(s){ all+=(s.time||0); });
+    box.innerHTML='<div class="tlabel">dieser Schritt · inkl. Wartezeit</div>'
+      +'<div class="tval">ca.&nbsp;'+t+'<small>Min</small></div>'
+      +'<div class="tcum">bisher aufgelaufen: <b>'+cum+' Min</b> <span>von ca. '+all+'</span></div>';
+    box.classList.remove('show'); void box.offsetWidth; box.classList.add('show');
+  }
+  function renderPoeppel(idx){
+    var el=document.getElementById('poeppeltime'); if(!el) return;
+    var psec=15;                       // ~Sekunden pro Schritt mit Pöppel (ein Klick)
+    var cumSec=(idx+1)*psec;
+    var disp = cumSec<60 ? cumSec+' Sek' : (Math.round(cumSec/6)/10)+' Min';
+    el.innerHTML='<div class="ptlabel">Mit Pöppel Workwear</div>'
+      +'<div class="ptval">'+psec+'<small>Sek</small></div>'
+      +'<div class="ptcum">bisher gesamt: <b>'+disp+'</b></div>';
+    el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+  }
+  var BIG={
+    bubble:'<path d="M4 5h16a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-9l-4 3v-3H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/>',
+    list:'<path d="M9 7h11M9 12h11M9 17h11"/><rect x="3.5" y="5.6" width="3" height="2.8" rx="0.6"/><rect x="3.5" y="10.6" width="3" height="2.8" rx="0.6"/><rect x="3.5" y="15.6" width="3" height="2.8" rx="0.6"/>',
+    coin:'<circle cx="12" cy="12" r="8.5"/><path d="M15 9.5a4 4 0 1 0 0 5"/><path d="M8.5 11h4M8.5 13h4"/>',
+    check:'<circle cx="12" cy="12" r="8.5"/><path d="M8 12.5l2.5 2.5L16 9"/>'
+  };
+  var BIGMAP={clipboard:'bubble',cart:'list',wallet:'coin',shield:'check',mega:'bubble'};
+  function bigIcon(k){ return BIGMAP[k]? BIG[BIGMAP[k]] : ICONS[k]; }
+  function renderBig(idx){
+    var el=document.getElementById('bigicon'); if(!el) return;
+    el.innerHTML='<svg viewBox="0 0 24 24">'+bigIcon(CUR[idx].icon)+'</svg>';
+    el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+  }
+
+  function useFallback(){ return reduce || coarse || window.innerWidth<820; }
+
+  function layout(){
+    if(useFallback()){ body.classList.add('fallback'); return; }
+    body.classList.remove('fallback');
+    sectionH=Math.round(window.innerHeight*(1 + N*0.85));
+    section.style.height=sectionH+'px';
+    update();
+  }
+
+  var ticking=false;
+  function update(){
+    if(useFallback()) return;
+    var rect=section.getBoundingClientRect();
+    var total=sectionH - window.innerHeight;
+    var scrolled=Math.min(Math.max(-rect.top,0), total);
+    var p= total>0 ? scrolled/total : 0;
+    var active=Math.min(N-1, Math.floor(p*N + 0.0001));
+    progFill.style.width=(Math.min(1,p)*100)+'%';
+    stepNum.textContent=(active+1);
+    if(active!==curActive){
+      curActive=active;
+      var doneK=0, upK=0;
+      cols.forEach(function(c,idx){
+        c.classList.remove('active','done','upcoming');
+        if(idx<active){ c.classList.add('done'); c.style.setProperty('--k',doneK++); }
+        else if(idx===active){ c.classList.add('active'); }
+        else { c.classList.add('upcoming'); c.style.setProperty('--ku',upK++); }
+      });
+      var C=colorAt(active,N);
+      stage.style.setProperty('--deptcolor', C);
+      var dl=document.getElementById('deptlabel'); if(dl){ dl.textContent=(CUR[active]&&CUR[active].dept)||''; }
+      renderRoles(active); renderTime(active); renderBig(active); renderPoeppel(active);
+    }
+  }
+
+  // Prozess-Umschalter
+  var sw=document.getElementById('procswitch');
+  Object.keys(PROCESSES).forEach(function(key){
+    var b=document.createElement('button'); b.textContent=PROCESSES[key].name; b.dataset.key=key;
+    if(key===curKey) b.classList.add('on');
+    b.addEventListener('click',function(){
+      if(key===curKey) return;
+      curKey=key;
+      sw.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x.dataset.key===key); });
+      buildSteps(key);
+      window.scrollTo(0, section.offsetTop);
+      layout();
+    });
+    sw.appendChild(b);
+  });
+
+  window.addEventListener('scroll',function(){ if(!ticking){ window.requestAnimationFrame(function(){ update(); ticking=false; }); ticking=true; } },{passive:true});
+  window.addEventListener('resize',function(){ curActive=-1; layout(); });
+
+  buildSteps('emp');
+  layout();
+})();
+</script>
+</body>
+</html>
