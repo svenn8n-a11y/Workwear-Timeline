@@ -10,17 +10,26 @@
     --orange:#FF6600; --orange-soft:#ff8636;
     --ink:#eaf1fa; --mut:#8ea3bd; --line:#2a3f5c;
     --red:#ff7266; --green:#41d38c;
+    --bg:#0a1628; --bg2:#122238; --nodebg:#122238;
+    --text:#eaf1fa; --textdim:#c3d2e6; --textwarm:#d8c7b6; --title:#ffffff;
+  }
+  [data-theme="light"]{
+    --bg:#eef2f8; --bg2:#e2e8f2; --nodebg:#ffffff;
+    --text:#17202e; --textdim:#41506a; --textwarm:#7a5a34; --title:#0f1b2b;
+    --ink:#17202e; --mut:#64768e; --line:#ccd7e6;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
-  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--navy);color:var(--ink);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background .4s ease,color .4s ease}
+  .themebtn{position:fixed;top:16px;right:20px;z-index:30;background:rgba(140,150,170,.14);border:1px solid var(--line);color:var(--text);font-family:inherit;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;padding:9px 15px;border-radius:999px;cursor:pointer;transition:.3s}
+  .themebtn:hover{background:rgba(140,150,170,.24)}
 
   /* HERO */
-  .hero{min-height:90vh;display:flex;flex-direction:column;justify-content:center;padding:8vh 8vw;background:radial-gradient(1200px 600px at 20% -10%,rgba(255,102,0,.14),transparent 60%),linear-gradient(160deg,var(--navy),var(--navy2))}
+  .hero{min-height:90vh;display:flex;flex-direction:column;justify-content:center;padding:8vh 8vw;background:radial-gradient(1200px 600px at 20% -10%,rgba(255,102,0,.14),transparent 60%),linear-gradient(160deg,var(--bg),var(--bg2))}
   .wordmark{font-weight:800;font-size:15px;letter-spacing:.02em}.wordmark span{color:var(--orange-soft)}
   .hero h1{font-size:clamp(30px,5.4vw,58px);line-height:1.08;font-weight:800;margin:26px 0 18px;max-width:16ch}
   .hero h1 em{color:var(--orange-soft);font-style:normal}
-  .hero p{font-size:clamp(15px,2vw,19px);color:#c3d2e6;max-width:56ch;line-height:1.6}
+  .hero p{font-size:clamp(15px,2vw,19px);color:var(--textdim);max-width:56ch;line-height:1.6}
   .scrollhint{margin-top:44px;display:flex;align-items:center;gap:12px;color:var(--mut);font-size:13px;letter-spacing:.14em;text-transform:uppercase}
   .scrollhint .bar{width:60px;height:2px;background:linear-gradient(90deg,var(--orange),transparent);position:relative;overflow:hidden}
   .scrollhint .bar::after{content:"";position:absolute;inset:0;width:24px;background:var(--orange-soft);animation:slide 1.8s ease-in-out infinite}
@@ -32,7 +41,7 @@
   .topbar{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:22px 6vw 0;z-index:7}
   .topbar .lab{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--orange-soft);font-weight:700}
   .topbar .count{font-size:13px;color:var(--mut);font-variant-numeric:tabular-nums}
-  .topbar .count b{color:#fff;font-size:20px}
+  .topbar .count b{color:var(--text);font-size:20px}
   /* Prozess-Umschalter */
   .procswitch{position:absolute;top:16px;left:50%;transform:translateX(-50%);z-index:8;display:flex;gap:6px;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:999px;padding:5px}
   .procswitch button{background:none;border:0;color:var(--mut);font-size:13px;font-weight:700;padding:9px 18px;border-radius:999px;cursor:pointer;transition:.3s;font-family:inherit;white-space:nowrap}
@@ -50,6 +59,9 @@
 
   /* Farb-Layer oben */
   .deptlayer{position:absolute;top:0;left:0;right:0;height:56%;z-index:0;pointer-events:none;background:linear-gradient(108deg,var(--deptcolor,transparent) 0%,transparent 58%);opacity:.34;transition:opacity .5s ease;border-left:3px solid var(--deptcolor,transparent)}
+  .botlayer{position:absolute;bottom:0;left:0;right:0;height:46%;z-index:0;pointer-events:none;background:linear-gradient(0deg,rgba(255,102,0,.08),transparent 85%)}
+  [data-theme="light"] .deptlayer{opacity:.52}
+  [data-theme="light"] .botlayer{background:linear-gradient(0deg,rgba(255,138,54,.30),transparent 88%)}
   /* Abteilung hochkant links */
   .deptlabel{position:absolute;left:2.6vw;top:26%;transform:translateY(-50%) rotate(180deg);writing-mode:vertical-rl;z-index:2;color:var(--deptcolor,#fff);font-size:18px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap;transition:color .5s ease}
 
@@ -62,7 +74,7 @@
   .rolebox .role{display:flex;align-items:center;gap:16px;margin-bottom:18px}
   .ravatar{width:64px;height:64px;border-radius:50%;background:#eef3fa;border:2.5px solid var(--orange);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
   .ravatar svg{width:40px;height:40px;fill:var(--orange)}
-  .rlabel{font-size:18px;color:#fff;font-weight:700;line-height:1.16}
+  .rlabel{font-size:18px;color:var(--text);font-weight:700;line-height:1.16}
 
   /* Zeit-Panel rechts */
   .timebox{position:absolute;right:5vw;top:11%;z-index:4;text-align:right;pointer-events:none}
@@ -70,8 +82,9 @@
   .timebox .tlabel{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);font-weight:800;margin-bottom:8px}
   .timebox .tval{font-size:66px;font-weight:800;color:var(--deptcolor,var(--orange-soft));line-height:.9;transition:color .5s}
   .timebox .tval small{font-size:22px;font-weight:700;margin-left:4px}
-  .timebox .tcum{margin-top:14px;font-size:14px;color:#c3d2e6;line-height:1.4}
-  .timebox .tcum b{color:#fff;font-size:20px} .timebox .tcum span{color:var(--mut)}
+  .timebox .textra{margin-top:8px;font-size:17px;font-weight:800;color:var(--red)}
+  .timebox .tcum{margin-top:14px;font-size:14px;color:var(--textdim);line-height:1.4}
+  .timebox .tcum b{color:var(--text);font-size:20px} .timebox .tcum span{color:var(--mut)}
   /* großes Outline-Icon zwischen Personen und Station */
   .bigicon{position:absolute;left:27%;top:31%;transform:translate(-50%,-50%);width:110px;height:110px;z-index:1;pointer-events:none;opacity:0;transition:opacity .5s ease}
   .bigicon.show{opacity:.4}
@@ -95,12 +108,12 @@
   .col .save .tag{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:7px;color:#1f6fbf}
   .col .process .pnum{display:block;font-size:66px;font-weight:800;color:var(--orange-soft);line-height:.9;margin-bottom:10px;letter-spacing:.01em}
   .col h3{font-weight:800;margin-bottom:7px;line-height:1.2}
-  .col .process h3{font-size:30px;color:#fff;margin-bottom:12px} .col .save h3{font-size:18px;color:var(--navy)}
-  .col .process p{font-size:17px;line-height:1.55;color:#d8c7b6;max-width:none;margin:0 auto}
+  .col .process h3{font-size:30px;color:var(--title);margin-bottom:12px} .col .save h3{font-size:18px;color:var(--navy)}
+  .col .process p{font-size:17px;line-height:1.55;color:var(--textwarm);max-width:none;margin:0 auto}
   .col .save p{font-size:15px;line-height:1.5;color:#33475b}
 
   .node{position:relative;z-index:4;flex:0 0 auto;cursor:pointer}
-  .dot{width:74px;height:74px;border-radius:50%;background:var(--navy2);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;transition:.6s cubic-bezier(.22,.7,.2,1);position:relative}
+  .dot{width:74px;height:74px;border-radius:50%;background:var(--nodebg);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;transition:.6s cubic-bezier(.22,.7,.2,1);position:relative}
   .dot svg{width:34px;height:34px;stroke:var(--mut);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;transition:.5s}
   .num{position:absolute;top:-8px;right:-8px;width:26px;height:26px;border-radius:50%;background:var(--navy3);border:1px solid var(--line);color:var(--mut);font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;transition:.5s}
   .steplabel{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:10px;font-size:12px;font-weight:700;color:var(--mut);white-space:nowrap;transition:.4s;opacity:0}
@@ -111,11 +124,11 @@
   .col.active .dot{width:88px;height:88px;background:var(--orange);border-color:var(--orange-soft);box-shadow:0 0 0 10px rgba(255,102,0,.12),0 16px 40px rgba(255,102,0,.35)}
   .col.active .dot svg{stroke:#fff;width:40px;height:40px}
   .col.active .num{background:#fff;border-color:#fff;color:var(--navy)}
-  .col.active .steplabel{opacity:1;color:#fff}
+  .col.active .steplabel{opacity:1;color:var(--text)}
 
   .col.done{left:calc(6vw + 34px + var(--k) * 40px);width:74px}
   .col.done .process,.col.done .save{opacity:0;pointer-events:none;height:0;padding:0;margin:0;border:0;overflow:hidden}
-  .col.done .dot{width:52px;height:52px;background:var(--navy2);border-color:var(--orange)}
+  .col.done .dot{width:52px;height:52px;background:var(--nodebg);border-color:var(--orange)}
   .col.done .dot svg{width:24px;height:24px;stroke:var(--orange-soft)}
   .col.done .num{width:22px;height:22px;font-size:11px;background:var(--orange);border-color:var(--orange);color:#fff;top:-6px;right:-6px}
   .col.done:hover .dot{transform:translateY(-4px)}
@@ -128,7 +141,7 @@
   /* POPOVER */
   .pop{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;background:rgba(4,10,20,.62);backdrop-filter:blur(3px);padding:20px}
   .pop.show{display:flex}
-  .pop .box{background:var(--navy2);border:1px solid var(--line);border-radius:18px;max-width:440px;width:100%;padding:26px;position:relative;animation:pop .4s cubic-bezier(.2,.8,.2,1)}
+  .pop .box{background:var(--bg2);border:1px solid var(--line);border-radius:18px;max-width:440px;width:100%;padding:26px;position:relative;animation:pop .4s cubic-bezier(.2,.8,.2,1)}
   @keyframes pop{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
   .pop .phead{display:flex;align-items:center;gap:14px;margin-bottom:16px}
   .pop .pdot{width:56px;height:56px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;flex:0 0 auto;position:relative}
@@ -146,17 +159,17 @@
   .pop .close{position:absolute;top:14px;right:16px;color:var(--mut);font-size:22px;cursor:pointer;line-height:1;background:none;border:0}
 
   /* OUTRO */
-  .outro{padding:14vh 8vw;background:linear-gradient(160deg,var(--navy2),var(--navy));text-align:center}
+  .outro{padding:14vh 8vw;background:linear-gradient(160deg,var(--bg2),var(--bg));text-align:center}
   .outro h2{font-size:clamp(24px,4vw,40px);font-weight:800;margin-bottom:16px}
   .outro h2 em{color:var(--orange-soft);font-style:normal}
-  .outro p{color:#c3d2e6;max-width:56ch;margin:0 auto 26px;font-size:16px;line-height:1.6}
+  .outro p{color:var(--textdim);max-width:56ch;margin:0 auto 26px;font-size:16px;line-height:1.6}
   .cta-btn{display:inline-block;background:var(--orange);color:#fff;font-weight:700;font-size:15px;padding:15px 30px;border-radius:12px;text-decoration:none;box-shadow:0 10px 30px rgba(255,102,0,.35)}
   .who{margin-top:24px;color:var(--mut);font-size:13px}
-  footer{background:var(--navy);color:#5f7796;font-size:11px;padding:18px;text-align:center}
+  footer{background:var(--bg);color:var(--mut);font-size:11px;padding:18px;text-align:center}
 
   /* FALLBACK */
   body.fallback .stage{position:static;height:auto;overflow:visible;padding-bottom:40px}
-  body.fallback .ruler,body.fallback .railcap,body.fallback .deptlayer,body.fallback .deptlabel,body.fallback .rolebox,body.fallback .timebox,body.fallback .bigicon,body.fallback .poeppeltime{display:none}
+  body.fallback .ruler,body.fallback .railcap,body.fallback .deptlayer,body.fallback .botlayer,body.fallback .deptlabel,body.fallback .rolebox,body.fallback .timebox,body.fallback .bigicon,body.fallback .poeppeltime{display:none}
   body.fallback .progress{position:sticky;top:0}
   body.fallback .steps{position:static;padding:110px 6vw 0;display:flex;flex-direction:column;gap:40px}
   body.fallback .col{position:static;transform:none;width:100%;left:auto!important;opacity:1!important;gap:14px}
@@ -169,6 +182,8 @@
 </head>
 <body>
 
+  <button class="themebtn" id="themeToggle">Hell</button>
+
   <section class="hero">
     <div class="wordmark">PÖPPEL <span>Workwear</span></div>
     <h1>Ihr Bestellprozess — und was <em>Pöppel</em> davon übernimmt.</h1>
@@ -179,8 +194,8 @@
   <section class="tl-section" id="tl">
     <div class="stage">
       <div class="deptlayer" id="deptlayer"></div>
+      <div class="botlayer"></div>
       <div class="deptlabel" id="deptlabel"></div>
-      <div class="bigicon" id="bigicon"></div>
       <div class="rolebox" id="rolebox"></div>
       <div class="timebox" id="timebox"></div>
       <div class="poeppeltime" id="poeppeltime"></div>
@@ -214,6 +229,11 @@
 <script>
 (function(){
   var body=document.body;
+  // Theme-Umschalter (Hell / Dunkel)
+  var themeBtn=document.getElementById('themeToggle');
+  function setTheme(t){ if(t==='light'){ document.documentElement.setAttribute('data-theme','light'); themeBtn.textContent='Dunkel'; } else { document.documentElement.removeAttribute('data-theme'); themeBtn.textContent='Hell'; } try{ localStorage.setItem('wwtheme',t); }catch(e){} }
+  try{ var saved=localStorage.getItem('wwtheme'); if(saved) setTheme(saved); }catch(e){}
+  themeBtn.addEventListener('click',function(){ setTheme(document.documentElement.getAttribute('data-theme')==='light'?'dark':'light'); });
   var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var coarse=window.matchMedia&&window.matchMedia('(pointer: coarse)').matches;
   var section=document.getElementById('tl');
@@ -246,7 +266,7 @@
   };
 
   // gemeinsame End-Stationen (ab Beschaffung fast gleich) als Bausteine
-  function S(label,icon,time,dept,roles,ptitle,ptext,stitle,stext){return{label:label,icon:icon,time:time,dept:dept,roles:roles,ptitle:ptitle,ptext:ptext,stitle:stitle,stext:stext};}
+  function S(label,icon,time,dept,roles,ptitle,ptext,stitle,stext,extra){return{label:label,icon:icon,time:time,dept:dept,roles:roles,ptitle:ptitle,ptext:ptext,stitle:stitle,stext:stext,extra:extra||''};}
 
   var PROCESSES={
     emp:{ name:'Mitarbeiter meldet', stations:[
@@ -255,7 +275,7 @@
       S('Budget','wallet',5,'Leitung / Controlling',['Vorgesetzter','Controlling'],'Budgetprüfung','Hat der Mitarbeiter überhaupt noch Budget frei? Das muss erst jemand nachsehen — Rücksprache mit Vorgesetztem oder Controlling.','Budget live im System','Das Budget jedes Mitarbeiters ist jederzeit sichtbar. Ist es aufgebraucht, greift die Regel automatisch — niemand muss nachsehen.'),
       S('Freigabe','shield',10,'Leitung',['Vorgesetzter'],'Freigabe','Die Bestellung geht zur Freigabe — per Mail, per Zuruf. Warten auf den Vorgesetzten, bis es weitergeht.','Freigabe nach Ihren Regeln','Sie wählen: automatisch nach Budget, zentral über die Abteilungsleitung oder über einen Verantwortlichen. Ohne Mail-Schleife.'),
       S('Beschaffung','truck',15,'Einkauf',['Einkauf'],'Beschaffung','Der Einkauf bündelt die Bedarfe, bestellt bei mehreren Lieferanten, koordiniert Termine, Mengen und Mindestbestellwerte.','Ein Ansprechpartner','Ein Ansprechpartner für alles, herstellerunabhängig aus 500+ Marken — eine Bestellung, ein Rechnungsstrom.'),
-      S('Veredelung','star',10,'Veredelung',['externer Veredler'],'Veredelung','Für Logo und Namen geht die Ware zum externen Veredler und wieder zurück. Falsch platzierte Logos, lange Wege, zusätzliche Wartezeit.','In-house, einmal festgelegt','Logos einmal aufbereitet und festgelegt, veredelt wird im eigenen Haus — kein Fehlerrisiko, kürzere Lieferzeit.'),
+      S('Veredelung','star',25,'Veredelung',['externer Veredler'],'Veredelung','Logo und Namen erfordern viele Absprachen: Freigaben, Muster, Platzierung. Dann geht die Ware zum externen Veredler und wieder zurück — das zieht die Lieferzeit massiv in die Länge.','In-house, einmal festgelegt','Logos einmal aufbereitet und festgelegt, veredelt wird im eigenen Haus — kein Fehlerrisiko, deutlich kürzere Lieferzeit.','+ 3–6 Wochen Lieferzeit'),
       S('Wareneingang','box',10,'Lager',['Lager /<br>Wareneingang'],'Wareneingang','Ein großes Sammelpaket kommt an. Jemand nimmt es an, packt aus, prüft gegen die Bestellung und lagert zwischen.','Vorkommissioniert','Die Ware kommt fertig sortiert — ein beschriftetes Päckchen je Mitarbeiter, direkt an den richtigen Standort.'),
       S('Verteilung','users',15,'Lager',['Lager','Polier'],'Verteilung','Im Betrieb wird sortiert: Wer bekommt was? Ausgeben, quittieren lassen, fehlende Teile nachverfolgen.','Fällt komplett weg','Entfällt vollständig — jedes Päckchen trägt schon den Namen und geht direkt auf die Baustelle.'),
       S('Abrechnung','chart',10,'Buchhaltung / Controlling',['Buchhaltung','Controlling'],'Abrechnung &amp; Kostenstellen','Am Ende die Kosten zuordnen — normalerweise pro Abteilung. Sobald Personaldienstleister eingebunden sind, wird es kompliziert.','Automatisch je Kostenstelle','Jede Bestellung ist der richtigen Kostenstelle zugeordnet — pro Abteilung, bei Bedarf pro Baustelle oder Personaldienstleister. Export fürs Controlling.'),
@@ -267,7 +287,7 @@
       S('Budget','wallet',10,'Controlling',['Controlling'],'Budgets prüfen','Für jede Abteilung prüfen: Ist das Budget gedeckt? Rückfragen, Kürzungen, Freigaben von oben.','Budgets live im System','Jedes Abteilungsbudget ist sichtbar, Überschreitungen fallen sofort auf — die Regel greift automatisch.'),
       S('Freigabe','shield',10,'Leitung',['Vorgesetzter'],'Freigabe','Die gesammelte Bestellung geht zur zentralen Freigabe. Warten, bis alle Stellen zugestimmt haben.','Freigabe nach Ihren Regeln','Automatisch nach Budget oder zentral über einen Verantwortlichen — Sie bestimmen den Weg, das System bildet ihn ab.'),
       S('Beschaffung','truck',15,'Einkauf',['Einkauf'],'Beschaffung','Der Einkauf bündelt alles, bestellt bei mehreren Lieferanten, koordiniert Termine und Mengen.','Ein Ansprechpartner','Ein Ansprechpartner, herstellerunabhängig aus 500+ Marken — eine Bestellung, ein Rechnungsstrom.'),
-      S('Veredelung','star',10,'Veredelung',['externer Veredler'],'Veredelung','Ware zum externen Veredler und zurück. Falsch platzierte Logos, lange Wege, Wartezeit.','In-house, einmal festgelegt','Logos einmal festgelegt, im eigenen Haus veredelt — kein Fehlerrisiko, kürzere Lieferzeit.'),
+      S('Veredelung','star',25,'Veredelung',['externer Veredler'],'Veredelung','Viele Absprachen für Logo und Platzierung, dann Ware zum externen Veredler und zurück — das verlängert die Lieferzeit erheblich.','In-house, einmal festgelegt','Logos einmal festgelegt, im eigenen Haus veredelt — kein Fehlerrisiko, deutlich kürzere Lieferzeit.','+ 3–6 Wochen Lieferzeit'),
       S('Wareneingang','box',10,'Lager',['Lager /<br>Wareneingang'],'Wareneingang','Ein großes Sammelpaket für alle Abteilungen kommt an — annehmen, auspacken, prüfen, zwischenlagern.','Vorkommissioniert','Fertig sortiert je Mitarbeiter und Abteilung, direkt an den richtigen Standort.'),
       S('Verteilung','users',15,'Lager',['Lager','Polier'],'Verteilung','Zentral sortieren und an die Abteilungen weiterverteilen — wer bekommt was, quittieren, nachverfolgen.','Fällt komplett weg','Jedes Päckchen ist beschriftet und geht direkt an die richtige Stelle.'),
       S('Abrechnung','chart',10,'Buchhaltung / Controlling',['Buchhaltung','Controlling'],'Abrechnung &amp; Kostenstellen','Die Sammelbestellung wieder auf die Abteilungen herunterbrechen und den Kostenstellen zuordnen.','Automatisch je Kostenstelle','Schon bei der Bestellung sauber je Abteilung/Kostenstelle gebucht — Export fürs Controlling, kein Aufteilen im Nachhinein.'),
@@ -306,7 +326,7 @@
       var C=colorAt(idx,N);
       html+='<div class="col" data-i="'+(idx+1)+'" data-dept="'+C+'">'
         +'<div class="process"><span class="pnum">'+('0'+(idx+1)).slice(-2)+'</span><h3>'+s.ptitle+'</h3><p>'+s.ptext+'</p></div>'
-        +'<div class="node"><div class="dot"><span class="num">'+(idx+1)+'</span><svg viewBox="0 0 24 24">'+ICONS[s.icon]+'</svg></div><span class="steplabel">'+s.label+'</span></div>'
+        +'<div class="node"><div class="dot"><svg viewBox="0 0 24 24">'+ICONS[s.icon]+'</svg></div><span class="steplabel">'+s.label+'</span></div>'
         +'<div class="save">'+(GONE[s.stitle]?'<div class="gonebadge"><span>entfällt</span></div>':'')+'<span class="tag">Pöppel Workwear spart</span><h3>'+s.stitle+'</h3><p>'+s.stext+'</p></div>'
         +'</div>';
     });
@@ -330,8 +350,10 @@
     var t=(CUR[idx]&&CUR[idx].time)||0;
     var cum=0; for(var i=0;i<=idx;i++){ cum+=(CUR[i].time||0); }
     var all=0; CUR.forEach(function(s){ all+=(s.time||0); });
+    var extra=(CUR[idx]&&CUR[idx].extra)?'<div class="textra">'+CUR[idx].extra+'</div>':'';
     box.innerHTML='<div class="tlabel">dieser Schritt · inkl. Wartezeit</div>'
       +'<div class="tval">ca.&nbsp;'+t+'<small>Min</small></div>'
+      +extra
       +'<div class="tcum">bisher aufgelaufen: <b>'+cum+' Min</b> <span>von ca. '+all+'</span></div>';
     box.classList.remove('show'); void box.offsetWidth; box.classList.add('show');
   }
@@ -391,7 +413,7 @@
       var C=colorAt(active,N);
       stage.style.setProperty('--deptcolor', C);
       var dl=document.getElementById('deptlabel'); if(dl){ dl.textContent=(CUR[active]&&CUR[active].dept)||''; }
-      renderRoles(active); renderTime(active); renderBig(active); renderPoeppel(active);
+      renderRoles(active); renderTime(active); renderPoeppel(active);
     }
   }
 
