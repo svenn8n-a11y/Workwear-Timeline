@@ -178,6 +178,29 @@
   body.fallback .col .dot{width:64px;height:64px}
   body.fallback .col .steplabel{position:static;transform:none;opacity:1!important;margin-top:8px;color:#fff}
   body.fallback .col .node{cursor:default}
+
+  /* MOBILE — robustes Sicherheitsnetz: normale vertikale Liste, kein Scroll-Jacking */
+  @media (max-width:820px){
+    section#tl{height:auto!important}
+    .stage{position:static!important;height:auto!important;overflow:visible!important;padding-bottom:50px}
+    .deptlayer,.botlayer,.deptlabel,.rolebox,.timebox,.poeppeltime,.ruler,.railcap,.progress,.bigicon{display:none!important}
+    .topbar{position:static!important;padding:78px 6vw 0}
+    .procswitch{position:static!important;transform:none!important;margin:18px 6vw 0;display:flex;flex-wrap:wrap;justify-content:flex-start;width:max-content;max-width:100%}
+    .procswitch button{font-size:12px;padding:8px 13px}
+    .steps{position:static!important;display:flex;flex-direction:column;gap:30px;padding:30px 6vw 0!important}
+    .col{position:static!important;transform:none!important;width:100%!important;left:auto!important;opacity:1!important;padding:0!important;border:0!important;background:none!important;display:block}
+    .col.active::before{display:none!important}
+    .col .process{opacity:1!important;transform:none!important;height:auto!important;margin:0 0 14px!important;padding:0!important;text-align:left}
+    .col .process p{max-width:none;margin:0}
+    .col .process .pnum{font-size:44px;margin-bottom:4px}
+    .col .process h3{font-size:22px}
+    .col .save{opacity:1!important;transform:none!important;height:auto!important;max-width:none!important;margin:14px 0 0!important;text-align:left}
+    .col .node{margin:10px 0;display:flex;align-items:center;gap:12px}
+    .col .dot,.col.done .dot,.col.upcoming .dot{width:54px!important;height:54px!important;background:var(--nodebg)!important;border-color:var(--orange)!important}
+    .col .dot svg{width:26px!important;height:26px!important;stroke:var(--orange-soft)!important}
+    .col .steplabel{position:static;transform:none;opacity:1!important;margin:0;color:var(--text);font-size:14px}
+    .themebtn{top:14px;right:14px}
+  }
 </style>
 </head>
 <body>
@@ -273,7 +296,7 @@
       S('Bedarf','clipboard',10,'Mitarbeiter / Abteilung',['Mitarbeiter','Abteilungsleiter'],'Bedarf melden','Dem Mitarbeiter fehlt eine Jacke, eine Hose. Er sagt es dem Vorarbeiter, der gibt es an den Abteilungsleiter weiter, der an den Verantwortlichen für Arbeitskleidung. Mehrere Hände, bevor überhaupt jemand bestellt.','Direkt im System','Der Mitarbeiter meldet den Bedarf selbst in der App — im Rahmen seines hinterlegten Budgets und seiner PSA. Kein Weiterreichen, keine Kette.'),
       S('Bestellung','cart',15,'Einkauf',['Einkauf'],'Modell finden &amp; bestellen','Im Katalog das richtige Modell suchen: Gibt es das überhaupt noch? Stimmt der Preis, die Größe? Jedes Jahr neue Sortimente, andere Artikelnummern — und dann bei mehreren Lieferanten vergleichen.','Bestellung nach Ihrem Modell','Ihr gepflegtes Sortiment im aktuellen CI-Katalog. Bestellt wird, wie es zu Ihnen passt: Self-Service-App, gesammelt über die Abteilungsleitung oder Schnittstelle in Ihr System.'),
       S('Budget','wallet',5,'Leitung / Controlling',['Vorgesetzter','Controlling'],'Budgetprüfung','Hat der Mitarbeiter überhaupt noch Budget frei? Das muss erst jemand nachsehen — Rücksprache mit Vorgesetztem oder Controlling.','Budget live im System','Das Budget jedes Mitarbeiters ist jederzeit sichtbar. Ist es aufgebraucht, greift die Regel automatisch — niemand muss nachsehen.'),
-      S('Freigabe','shield',10,'Leitung',['Vorgesetzter'],'Freigabe','Die Bestellung geht zur Freigabe — per Mail, per Zuruf. Warten auf den Vorgesetzten, bis es weitergeht.','Freigabe nach Ihren Regeln','Sie wählen: automatisch nach Budget, zentral über die Abteilungsleitung oder über einen Verantwortlichen. Ohne Mail-Schleife.'),
+      S('Freigabe','shield',10,'Leitung',['Vorgesetzter'],'Freigabe','Die Bestellung geht zur Freigabe — per Mail, per Zuruf. Dann heißt es warten, bis der Vorgesetzte sie erteilt: oft erst am nächsten Tag.','Freigabe nach Ihren Regeln','Sie wählen: automatisch nach Budget, zentral über die Abteilungsleitung oder über einen Verantwortlichen. Ohne Mail-Schleife, ohne Warten.','+ oft 1 Tag Wartezeit'),
       S('Beschaffung','truck',15,'Einkauf',['Einkauf'],'Beschaffung','Der Einkauf bündelt die Bedarfe, bestellt bei mehreren Lieferanten, koordiniert Termine, Mengen und Mindestbestellwerte.','Ein Ansprechpartner','Ein Ansprechpartner für alles, herstellerunabhängig aus 500+ Marken — eine Bestellung, ein Rechnungsstrom.'),
       S('Veredelung','star',25,'Veredelung',['externer Veredler'],'Veredelung','Logo und Namen erfordern viele Absprachen: Freigaben, Muster, Platzierung. Dann geht die Ware zum externen Veredler und wieder zurück — das zieht die Lieferzeit massiv in die Länge.','In-house, einmal festgelegt','Logos einmal aufbereitet und festgelegt, veredelt wird im eigenen Haus — kein Fehlerrisiko, deutlich kürzere Lieferzeit.','+ 3–6 Wochen Lieferzeit'),
       S('Wareneingang','box',10,'Lager',['Lager /<br>Wareneingang'],'Wareneingang','Ein großes Sammelpaket kommt an. Jemand nimmt es an, packt aus, prüft gegen die Bestellung und lagert zwischen.','Vorkommissioniert','Die Ware kommt fertig sortiert — ein beschriftetes Päckchen je Mitarbeiter, direkt an den richtigen Standort.'),
@@ -285,7 +308,7 @@
       S('Startschuss','mega',20,'Einkauf',['Einkauf','Workwear-Verantwortlicher'],'Bestellrunde ausrufen','Der Einkauf startet die Bestellrunde und bittet alle Abteilungen, ihre Bedarfe zu erfassen. Rundmail, Fristen setzen, Nachfassen bei denen, die nicht liefern.','Zentral angestoßen','Ein Klick startet die Runde. Jede Abteilung sieht ihre Aufgabe und Frist im System — kein Rundmail-Chaos, kein Nachtelefonieren.'),
       S('Sammeln','users',30,'Abteilungsleiter',['Abteilungsleiter','Mitarbeiter'],'Bedarfe einsammeln','Die Abteilungsleiter fragen ihre Leute ab, notieren Größen und Mengen, tippen Listen ab und geben sie zurück. Hin und her, bis alles vollständig ist.','Mitarbeiter melden selbst','Jeder trägt seinen Bedarf direkt ein, die Abteilung sieht den Stand in Echtzeit — kein Abtippen, keine Sammellisten.'),
       S('Budget','wallet',10,'Controlling',['Controlling'],'Budgets prüfen','Für jede Abteilung prüfen: Ist das Budget gedeckt? Rückfragen, Kürzungen, Freigaben von oben.','Budgets live im System','Jedes Abteilungsbudget ist sichtbar, Überschreitungen fallen sofort auf — die Regel greift automatisch.'),
-      S('Freigabe','shield',10,'Leitung',['Vorgesetzter'],'Freigabe','Die gesammelte Bestellung geht zur zentralen Freigabe. Warten, bis alle Stellen zugestimmt haben.','Freigabe nach Ihren Regeln','Automatisch nach Budget oder zentral über einen Verantwortlichen — Sie bestimmen den Weg, das System bildet ihn ab.'),
+      S('Freigabe','shield',10,'Leitung',['Vorgesetzter'],'Freigabe','Die gesammelte Bestellung geht zur zentralen Freigabe. Warten, bis alle Stellen zugestimmt haben — oft erst am nächsten Tag.','Freigabe nach Ihren Regeln','Automatisch nach Budget oder zentral über einen Verantwortlichen — Sie bestimmen den Weg, das System bildet ihn ab.','+ oft 1 Tag Wartezeit'),
       S('Beschaffung','truck',15,'Einkauf',['Einkauf'],'Beschaffung','Der Einkauf bündelt alles, bestellt bei mehreren Lieferanten, koordiniert Termine und Mengen.','Ein Ansprechpartner','Ein Ansprechpartner, herstellerunabhängig aus 500+ Marken — eine Bestellung, ein Rechnungsstrom.'),
       S('Veredelung','star',25,'Veredelung',['externer Veredler'],'Veredelung','Viele Absprachen für Logo und Platzierung, dann Ware zum externen Veredler und zurück — das verlängert die Lieferzeit erheblich.','In-house, einmal festgelegt','Logos einmal festgelegt, im eigenen Haus veredelt — kein Fehlerrisiko, deutlich kürzere Lieferzeit.','+ 3–6 Wochen Lieferzeit'),
       S('Wareneingang','box',10,'Lager',['Lager /<br>Wareneingang'],'Wareneingang','Ein großes Sammelpaket für alle Abteilungen kommt an — annehmen, auspacken, prüfen, zwischenlagern.','Vorkommissioniert','Fertig sortiert je Mitarbeiter und Abteilung, direkt an den richtigen Standort.'),
